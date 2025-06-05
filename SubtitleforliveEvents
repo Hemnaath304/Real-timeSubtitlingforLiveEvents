@@ -1,0 +1,24 @@
+fromgoogle.colabimportfiles import zipfile, os, time
+importspeech_recognitionassr
+
+#UploadandextractZIP uploaded = files.upload()
+zip_file=list(uploaded.keys())[0] extract_path = "live_audio"
+withzipfile.ZipFile(zip_file, 'r')aszip_ref: zip_ref.extractall(extract_path)
+
+recognizer = sr.Recognizer() subtitle_file="live_subtitles.txt"
+
+#Findallwavfiles audio_files = []
+for root,_,files_in_dir inos.walk(extract_path): for file in sorted(files_in_dir):
+ 
+if file.lower().endswith(".wav"): audio_files.append(os.path.join(root,file))
+
+withopen(subtitle_file, "w", encoding="utf-8")as f: f.write("=== Live Subtitles ===\n")
+
+forfilepathinaudio_files:
+withsr.AudioFile(filepath)assource: audio=recognizer.record(source)
+try:
+text=recognizer.recognize_google(audio) timestamp=time.strftime('%H:%M:%S') print(f"[{timestamp}] {text}")
+withopen(subtitle_file, "a",encoding="utf-8")asf: f.write(f"[{timestamp}] {text}\n")
+except sr.UnknownValueError: print(f"[{time.strftime('%H:%M:%S')}]Couldnotunderstand.")
+except sr.RequestError as e: print(f"[{time.strftime('%H:%M:%S')}] API error:{e}")
+time.sleep(1)
